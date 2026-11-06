@@ -45,8 +45,7 @@ const en = {
     another: 'Another message',
     backHome: 'Back home',
     backToCategories: 'Back to categories',
-    count: (n: number) => `${n} messages`,
-    rowLabel: (title: string, theme: string, n: number) => `${title}. ${theme}. ${n} messages.`,
+    rowLabel: (title: string, theme: string) => `${title}. ${theme}.`,
   },
 
   message: {
@@ -248,8 +247,7 @@ const es: Strings = {
     another: 'Otra frase',
     backHome: 'Volver al inicio',
     backToCategories: 'Volver a las colecciones',
-    count: (n: number) => `${n} frases`,
-    rowLabel: (title: string, theme: string, n: number) => `${title}. ${theme}. ${n} frases.`,
+    rowLabel: (title: string, theme: string) => `${title}. ${theme}.`,
   },
 
   message: {

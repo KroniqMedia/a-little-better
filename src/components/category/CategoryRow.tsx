@@ -10,7 +10,7 @@ import { PressableScale } from '../ui/PressableScale';
 import { CategoryIcon } from './CategoryIcon';
 
 /** Larger editorial row used on the Explore screen. */
-export function CategoryRow({ category, count, onPress }: { category: Category; count: number; onPress: () => void }) {
+export function CategoryRow({ category, onPress }: { category: Category; onPress: () => void }) {
   const { colors } = useTheme();
   const { t } = useI18n();
   return (
@@ -18,19 +18,15 @@ export function CategoryRow({ category, count, onPress }: { category: Category; 
       onPress={onPress}
       scaleTo={0.98}
       accessibilityRole="button"
-      accessibilityLabel={t.category.rowLabel(category.title, category.theme, count)}
+      accessibilityLabel={t.category.rowLabel(category.title, category.theme)}
       style={[styles.row, { backgroundColor: category.tint }]}
     >
+      {/* No message count: a collection should feel open-ended, not like a list to finish. */}
       <View style={styles.top}>
         <View style={styles.icon}>
           <CategoryIcon id={category.id} color={category.ink} size={24} />
         </View>
-        <View style={styles.count}>
-          <AppText variant="caption" tone="muted">
-            {t.category.count(count)}
-          </AppText>
-          <ChevronRight size={18} color={colors.textMuted} strokeWidth={1.5} />
-        </View>
+        <ChevronRight size={18} color={colors.textMuted} strokeWidth={1.5} />
       </View>
       <AppText variant="title">{category.title}</AppText>
       <AppText variant="overline" tone="muted" style={styles.theme}>
@@ -54,6 +50,5 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  count: { flexDirection: 'row', alignItems: 'center', gap: 2 },
   theme: { marginTop: spacing.xxs, marginBottom: spacing.sm },
 });

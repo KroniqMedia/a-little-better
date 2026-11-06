@@ -7,7 +7,6 @@ import { AppText } from '@/components/ui/AppText';
 import { Screen } from '@/components/ui/Screen';
 import { spacing } from '@/constants/theme';
 import { getCategories } from '@/data/categories';
-import { getMessagesForCategory } from '@/data/messages';
 import { useI18n } from '@/hooks/useI18n';
 
 export default function ExploreScreen() {
@@ -30,7 +29,6 @@ export default function ExploreScreen() {
           <Animated.View key={c.id} entering={FadeInDown.duration(450).delay(60 * i)}>
             <CategoryRow
               category={c}
-              count={getMessagesForCategory(c.id).length}
               onPress={() => router.push({ pathname: '/category/[id]', params: { id: c.id } })}
             />
           </Animated.View>
