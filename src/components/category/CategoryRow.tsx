@@ -11,7 +11,7 @@ import { CategoryIcon } from './CategoryIcon';
 
 /** Larger editorial row used on the Explore screen. */
 export function CategoryRow({ category, onPress }: { category: Category; onPress: () => void }) {
-  const { colors } = useTheme();
+  const { colors, scheme } = useTheme();
   const { t } = useI18n();
   return (
     <PressableScale
@@ -23,7 +23,7 @@ export function CategoryRow({ category, onPress }: { category: Category; onPress
     >
       {/* No message count: a collection should feel open-ended, not like a list to finish. */}
       <View style={styles.top}>
-        <View style={styles.icon}>
+        <View style={[styles.icon, { backgroundColor: scheme === 'dark' ? 'rgba(255,255,255,0.07)' : 'rgba(255,255,255,0.55)' }]}>
           <CategoryIcon id={category.id} color={category.ink} size={24} />
         </View>
         <ChevronRight size={18} color={colors.textMuted} strokeWidth={1.5} />
@@ -46,7 +46,6 @@ const styles = StyleSheet.create({
     width: 46,
     height: 46,
     borderRadius: 23,
-    backgroundColor: 'rgba(255,255,255,0.55)',
     alignItems: 'center',
     justifyContent: 'center',
   },

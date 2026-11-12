@@ -4,14 +4,29 @@ import { getMessage } from '@/data/messages';
 import { localFavorites, type FavoritesRepository } from '@/services/storage';
 import type { Message, SavedEntry } from '@/types';
 
+/** "To come back to" stays a short list on purpose. */
+export const MAX_PINNED = 3;
+
+export interface SavedItem {
+  message: Message;
+  savedAt: number;
+  pinned: boolean;
+}
+
 interface FavoritesContextValue {
   ready: boolean;
   /** Saved messages, newest first. */
-  saved: { message: Message; savedAt: number }[];
+  saved: SavedItem[];
+  /** Raw entries, for backups. */
+  entries: readonly SavedEntry[];
   isSaved: (id: string) => boolean;
   /** Returns the new saved state. */
   toggle: (id: string) => boolean;
   remove: (id: string) => void;
+  /** 'full' means MAX_PINNED are already pinned and nothing changed. */
+  togglePin: (id: string) => 'pinned' | 'unpinned' | 'full';
+  /** Adds entries from a backup (existing ones are kept). Returns how many were new. */
+  merge: (incoming: readonly SavedEntry[]) => number;
 }
 
 const FavoritesContext = createContext<FavoritesContextValue | null>(null);
@@ -69,13 +84,48 @@ export function FavoritesProvider({
     [commit],
   );
 
+  const togglePin = useCallback(
+    (id: string) => {
+      const current = entriesRef.current;
+      const entry = current.find((e) => e.id === id);
+      if (!entry) return 'unpinned' as const;
+      if (entry.pinned) {
+        commit(current.map((e) => (e.id === id ? { id: e.id, savedAt: e.savedAt } : e)));
+        return 'unpinned' as const;
+      }
+      if (current.filter((e) => e.pinned).length >= MAX_PINNED) return 'full' as const;
+      commit(current.map((e) => (e.id === id ? { ...e, pinned: true } : e)));
+      return 'pinned' as const;
+    },
+    [commit],
+  );
+
+  const merge = useCallback(
+    (incoming: readonly SavedEntry[]) => {
+      const current = entriesRef.current;
+      const have = new Set(current.map((e) => e.id));
+      let pinnedCount = current.filter((e) => e.pinned).length;
+      const fresh: SavedEntry[] = [];
+      for (const e of incoming) {
+        if (have.has(e.id) || !getMessage(e.id)) continue;
+        have.add(e.id);
+        const pinned = Boolean(e.pinned) && pinnedCount < MAX_PINNED;
+        if (pinned) pinnedCount++;
+        fresh.push(pinned ? { id: e.id, savedAt: e.savedAt, pinned } : { id: e.id, savedAt: e.savedAt });
+      }
+      if (fresh.length) commit([...fresh, ...current]);
+      return fresh.length;
+    },
+    [commit],
+  );
+
   const value = useMemo<FavoritesContextValue>(() => {
     const saved = entries
-      .map((e) => ({ message: getMessage(e.id), savedAt: e.savedAt }))
-      .filter((s): s is { message: Message; savedAt: number } => Boolean(s.message))
+      .map((e) => ({ message: getMessage(e.id), savedAt: e.savedAt, pinned: Boolean(e.pinned) }))
+      .filter((s): s is SavedItem => Boolean(s.message))
       .sort((a, b) => b.savedAt - a.savedAt);
-    return { ready, saved, isSaved: (id) => ids.has(id), toggle, remove };
-  }, [entries, ids, ready, toggle, remove]);
+    return { ready, saved, entries, isSaved: (id) => ids.has(id), toggle, remove, togglePin, merge };
+  }, [entries, ids, ready, toggle, remove, togglePin, merge]);
 
   return <FavoritesContext.Provider value={value}>{children}</FavoritesContext.Provider>;
 }

@@ -8,10 +8,12 @@ import { Screen } from '@/components/ui/Screen';
 import { spacing } from '@/constants/theme';
 import { getCategories } from '@/data/categories';
 import { useI18n } from '@/hooks/useI18n';
+import { useTheme } from '@/hooks/useTheme';
 
 export default function ExploreScreen() {
   const router = useRouter();
   const { t, locale } = useI18n();
+  const { scheme } = useTheme();
 
   return (
     <Screen>
@@ -25,7 +27,7 @@ export default function ExploreScreen() {
       </View>
 
       <View style={styles.list}>
-        {getCategories(locale).map((c, i) => (
+        {getCategories(locale, scheme).map((c, i) => (
           <Animated.View key={c.id} entering={FadeInDown.duration(450).delay(60 * i)}>
             <CategoryRow
               category={c}

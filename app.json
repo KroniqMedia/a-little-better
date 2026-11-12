@@ -6,7 +6,7 @@
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "scheme": "alittlebetter",
-    "userInterfaceStyle": "light",
+    "userInterfaceStyle": "automatic",
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.kroniq.alittlebetter"
@@ -35,7 +35,11 @@
           "image": "./assets/splash-icon.png",
           "imageWidth": 160,
           "resizeMode": "contain",
-          "backgroundColor": "#EDE7DC"
+          "backgroundColor": "#EDE7DC",
+          "dark": {
+            "image": "./assets/splash-icon.png",
+            "backgroundColor": "#1C1D1A"
+          }
         }
       ],
       [
@@ -58,7 +62,34 @@
       [
         "expo-localization",
         {
-          "supportedLocales": ["en", "es"]
+          "supportedLocales": [
+            "en",
+            "es"
+          ]
+        }
+      ],
+      [
+        "expo-widgets",
+        {
+          "enableAndroid": true,
+          "widgets": [
+            {
+              "name": "DailyMessage",
+              "displayName": "A Little Better",
+              "description": "Today's message, at a glance.",
+              "ios": {
+                "supportedFamilies": [
+                  "systemSmall",
+                  "systemMedium"
+                ]
+              },
+              "android": {
+                "targetCellWidth": 3,
+                "targetCellHeight": 2,
+                "resizeMode": "both"
+              }
+            }
+          ]
         }
       ]
     ],

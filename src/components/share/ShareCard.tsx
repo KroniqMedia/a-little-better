@@ -6,7 +6,9 @@ import type { Message } from '@/types';
 import { AppText } from '../ui/AppText';
 
 export interface ShareTemplate {
-  id: 'ivory' | 'cream' | 'sage' | 'charcoal';
+  id: 'ivory' | 'cream' | 'sage' | 'charcoal' | 'dawn' | 'mist' | 'forest' | 'night';
+  /** Part of A Little Better+. */
+  plus?: boolean;
   background: string;
   text: string;
   muted: string;
@@ -18,6 +20,10 @@ export const SHARE_TEMPLATES: readonly ShareTemplate[] = [
   { id: 'cream', background: palette.cream, text: palette.charcoal, muted: palette.grey, accent: palette.clay },
   { id: 'sage', background: palette.sage, text: palette.charcoal, muted: '#4E5449', accent: palette.cream },
   { id: 'charcoal', background: palette.charcoal, text: palette.cream, muted: '#B3AFA4', accent: palette.clay },
+  { id: 'dawn', plus: true, background: '#F3DCCB', text: palette.charcoal, muted: '#6E5A4E', accent: '#E9B9A0' },
+  { id: 'mist', plus: true, background: '#DCE3E9', text: '#2F3A44', muted: '#55636F', accent: '#B9C7D3' },
+  { id: 'forest', plus: true, background: '#3F5C58', text: '#F1EEE6', muted: '#C3D2CD', accent: '#9FBDB8' },
+  { id: 'night', plus: true, background: '#1C1D1A', text: '#EDE7DC', muted: '#A29E93', accent: '#B9B0CC' },
 ];
 
 interface ShareCardProps {

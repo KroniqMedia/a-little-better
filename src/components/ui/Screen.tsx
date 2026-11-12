@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react';
+import type { ComponentRef, ReactNode, Ref } from 'react';
 import { StyleSheet, View, type ScrollViewProps } from 'react-native';
 import Animated, { interpolate, useAnimatedScrollHandler, useAnimatedStyle, useSharedValue } from 'react-native-reanimated';
 import { useSafeAreaInsets, type Edge } from 'react-native-safe-area-context';
@@ -14,10 +14,14 @@ interface ScreenProps {
   contentContainerStyle?: ScrollViewProps['contentContainerStyle'];
   /** Decorative layer drawn behind the content (scrolls with it). */
   background?: ReactNode;
+  /** For screens that scroll to a section programmatically. */
+  scrollRef?: Ref<ScreenScrollView>;
 }
 
+export type ScreenScrollView = ComponentRef<typeof Animated.ScrollView>;
+
 /** Page container: background, safe areas, readable max width on tablets. */
-export function Screen({ children, scroll = true, edges = ['top'], contentContainerStyle, background }: ScreenProps) {
+export function Screen({ children, scroll = true, edges = ['top'], contentContainerStyle, background, scrollRef }: ScreenProps) {
   const { colors } = useTheme();
   const insets = useSafeAreaInsets();
   const scrollY = useSharedValue(0);
@@ -41,6 +45,7 @@ export function Screen({ children, scroll = true, edges = ['top'], contentContai
   return (
     <View style={[styles.root, { backgroundColor: colors.background }]}>
       <Animated.ScrollView
+        ref={scrollRef}
         onScroll={onScroll}
         scrollEventThrottle={16}
         style={styles.root}

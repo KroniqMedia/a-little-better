@@ -6,24 +6,44 @@ import {
   requestPermission,
   scheduleDailyReminders,
   type PermissionResult,
+  type ReminderSettings,
 } from '@/services/notifications';
 import { resolveLocale } from '@/i18n/device';
 import { DEFAULT_PREFERENCES, localPreferences, type PreferencesRepository } from '@/services/storage';
-import type { LanguagePreference, Preferences } from '@/types';
+import type { LanguagePreference, NotificationStyle, Preferences } from '@/types';
+
+/** Preferences with no side effects beyond being saved. */
+export type SimplePreferences = Pick<Preferences, 'hapticsEnabled' | 'appearance' | 'accent' | 'welcomed' | 'hasTried' | 'reminderAsked'>;
 
 interface PreferencesContextValue {
   ready: boolean;
   prefs: Preferences;
-  setHaptics: (enabled: boolean) => void;
+  /** Saves simple flags and choices (haptics, appearance, onboarding state). */
+  update: (patch: Partial<SimplePreferences>) => void;
   /** Turns reminders on (asking permission if needed) or off. */
   setNotificationsEnabled: (enabled: boolean) => Promise<PermissionResult | 'off'>;
   setNotificationTime: (hour: number, minute: number) => Promise<void>;
+  /** Discreet or full-message reminders; pending ones are rewritten. */
+  setNotificationStyle: (style: NotificationStyle) => Promise<void>;
   /** Switches language; pending reminders are rewritten in the new language. */
   setLanguage: (language: LanguagePreference) => Promise<void>;
+  /**
+   * Applies settings from a backup. Reminders are never switched on this way
+   * (that needs the person's permission on this phone); if they are already
+   * on, they are rescheduled with the restored time and style.
+   */
+  restore: (patch: Partial<Omit<Preferences, 'notificationsEnabled'>>) => Promise<void>;
 }
 
 /** Keeps reminder bookkeeping off the critical path at launch. */
 const TOP_UP_DELAY_MS = 1500;
+
+const reminderSettings = (p: Preferences): ReminderSettings => ({
+  hour: p.notificationHour,
+  minute: p.notificationMinute,
+  locale: resolveLocale(p.language),
+  style: p.notificationStyle,
+});
 
 const PreferencesContext = createContext<PreferencesContextValue | null>(null);
 
@@ -63,11 +83,7 @@ export function PreferencesProvider({
       // that here.
       if (loaded.notificationsEnabled) {
         topUp = setTimeout(async () => {
-          const ok = await ensureDailyReminders(
-            loaded.notificationHour,
-            loaded.notificationMinute,
-            resolveLocale(loaded.language),
-          );
+          const ok = await ensureDailyReminders(reminderSettings(loaded));
           if (!ok && alive) commit({ notificationsEnabled: false });
         }, TOP_UP_DELAY_MS);
       }
@@ -78,7 +94,12 @@ export function PreferencesProvider({
     };
   }, [repository, commit]);
 
-  const setHaptics = useCallback((enabled: boolean) => void commit({ hapticsEnabled: enabled }), [commit]);
+  const update = useCallback((patch: Partial<SimplePreferences>) => void commit(patch), [commit]);
+
+  /** Rewrites pending reminders after a change, if they're on. */
+  const reschedule = useCallback(async (next: Preferences) => {
+    if (next.notificationsEnabled) await scheduleDailyReminders(reminderSettings(next));
+  }, []);
 
   const setNotificationsEnabled = useCallback(
     async (enabled: boolean) => {
@@ -93,7 +114,7 @@ export function PreferencesProvider({
         return permission;
       }
       const next = commit({ notificationsEnabled: true });
-      const ok = await scheduleDailyReminders(next.notificationHour, next.notificationMinute, resolveLocale(next.language));
+      const ok = await scheduleDailyReminders(reminderSettings(next));
       if (!ok) {
         commit({ notificationsEnabled: false });
         return 'error' as const;
@@ -104,26 +125,32 @@ export function PreferencesProvider({
   );
 
   const setNotificationTime = useCallback(
-    async (hour: number, minute: number) => {
-      const next = commit({ notificationHour: hour, notificationMinute: minute });
-      if (next.notificationsEnabled) await scheduleDailyReminders(hour, minute, resolveLocale(next.language));
-    },
-    [commit],
+    (hour: number, minute: number) => reschedule(commit({ notificationHour: hour, notificationMinute: minute })),
+    [commit, reschedule],
+  );
+
+  const setNotificationStyle = useCallback(
+    (style: NotificationStyle) => reschedule(commit({ notificationStyle: style })),
+    [commit, reschedule],
   );
 
   const setLanguage = useCallback(
-    async (language: LanguagePreference) => {
-      const next = commit({ language });
-      if (next.notificationsEnabled) {
-        await scheduleDailyReminders(next.notificationHour, next.notificationMinute, resolveLocale(language));
-      }
+    (language: LanguagePreference) => reschedule(commit({ language })),
+    [commit, reschedule],
+  );
+
+  const restore = useCallback(
+    (patch: Partial<Omit<Preferences, 'notificationsEnabled'>>) => {
+      // Never let a backup turn reminders on.
+      const { notificationsEnabled: _ignored, ...safe } = patch as Partial<Preferences>;
+      return reschedule(commit(safe));
     },
-    [commit],
+    [commit, reschedule],
   );
 
   const value = useMemo(
-    () => ({ ready, prefs, setHaptics, setNotificationsEnabled, setNotificationTime, setLanguage }),
-    [ready, prefs, setHaptics, setNotificationsEnabled, setNotificationTime, setLanguage],
+    () => ({ ready, prefs, update, setNotificationsEnabled, setNotificationTime, setNotificationStyle, setLanguage, restore }),
+    [ready, prefs, update, setNotificationsEnabled, setNotificationTime, setNotificationStyle, setLanguage, restore],
   );
 
   return <PreferencesContext.Provider value={value}>{children}</PreferencesContext.Provider>;

@@ -26,8 +26,14 @@ export const DEFAULT_PREFERENCES: Preferences = {
   notificationsEnabled: false,
   notificationHour: 9,
   notificationMinute: 0,
+  notificationStyle: 'discreet',
   hapticsEnabled: true,
   language: 'system',
+  appearance: 'system',
+  accent: 'sage',
+  welcomed: false,
+  hasTried: false,
+  reminderAsked: false,
 };
 
 async function readJson<T>(key: string): Promise<T | null> {
@@ -48,12 +54,13 @@ async function writeJson(key: string, value: unknown): Promise<void> {
   }
 }
 
-function isSavedEntry(v: unknown): v is SavedEntry {
+export function isSavedEntry(v: unknown): v is SavedEntry {
   return (
     typeof v === 'object' &&
     v !== null &&
     typeof (v as SavedEntry).id === 'string' &&
-    typeof (v as SavedEntry).savedAt === 'number'
+    typeof (v as SavedEntry).savedAt === 'number' &&
+    ((v as SavedEntry).pinned === undefined || typeof (v as SavedEntry).pinned === 'boolean')
   );
 }
 

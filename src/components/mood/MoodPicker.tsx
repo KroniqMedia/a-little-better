@@ -46,7 +46,7 @@ export function MoodPicker({ selected, onSelect }: MoodPickerProps) {
                 <AppText
                   variant="caption"
                   align="center"
-                  numberOfLines={1}
+                  numberOfLines={2}
                   style={[styles.label, { color: active ? colors.text : colors.textMuted }]}
                 >
                   {mood.label}

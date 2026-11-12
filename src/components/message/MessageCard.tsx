@@ -1,4 +1,4 @@
-import { Share2, Trash2 } from '@/components/icons';
+import { Pin, PinOff, Share2, Trash2 } from '@/components/icons';
 import { StyleSheet, View } from 'react-native';
 
 import { getCategory } from '@/data/categories';
@@ -21,13 +21,24 @@ interface MessageCardProps {
   label?: string;
   /** Replace the heart with a remove button (Saved screen). */
   onRemove?: () => void;
+  /** Saved screen: pin to / unpin from "To come back to". */
+  pinned?: boolean;
+  onTogglePin?: () => void;
 }
 
-export function MessageCard({ message, size = 'feature', showCategory = true, label, onRemove }: MessageCardProps) {
-  const { colors } = useTheme();
+export function MessageCard({
+  message,
+  size = 'feature',
+  showCategory = true,
+  label,
+  onRemove,
+  pinned,
+  onTogglePin,
+}: MessageCardProps) {
+  const { colors, scheme } = useTheme();
   const { t, locale } = useI18n();
   const { saved, toggleSave, share } = useMessageActions(message);
-  const category = getCategory(message.category, locale);
+  const category = getCategory(message.category, locale, scheme);
   // Messages are picked by ID; show them in the current language.
   const { text, support } = localizeMessage(message, locale);
   const feature = size === 'feature';
@@ -78,6 +89,15 @@ export function MessageCard({ message, size = 'feature', showCategory = true, la
         ) : (
           <SaveButton saved={saved} onPress={toggleSave} labels={t.message} />
         )}
+        {onTogglePin ? (
+          <IconButton
+            icon={pinned ? PinOff : Pin}
+            onPress={onTogglePin}
+            accessibilityLabel={pinned ? t.saved.unpin : t.saved.pin}
+            color={pinned ? colors.accentStrong : colors.textMuted}
+            size={20}
+          />
+        ) : null}
         <IconButton icon={Share2} onPress={share} accessibilityLabel={t.message.share} size={20} />
       </View>
     </View>

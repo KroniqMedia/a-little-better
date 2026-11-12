@@ -1,10 +1,10 @@
 import type { MoodId } from '@/data/moods';
+import type { AccentId, ColorSchemeName } from '@/types';
 /**
  * Centralised design tokens for A Little Better.
  *
  * Components read colors through `useTheme()` rather than importing `palette`
- * directly, so a dark scheme can be added later by supplying a second
- * `ColorScheme` object without touching component code.
+ * directly; the hook picks the light or dark scheme.
  */
 
 export const palette = {
@@ -33,25 +33,50 @@ export interface ColorScheme {
   divider: string;
   shadow: string;
   danger: string;
+  /** Text and icons drawn on a `text`-colored fill (primary buttons, active chips). */
   onAccent: string;
+  /** Switch track when off. */
+  trackOff: string;
 }
 
+// Text tones meet WCAG AA (4.5:1) on background, surface and card.
 export const lightColors: ColorScheme = {
   background: palette.ivory,
   surface: palette.cream,
   surfaceRaised: palette.white,
   card: '#FFFCF6',
   text: palette.charcoal,
-  textMuted: palette.grey,
-  textSubtle: '#A29E93',
+  textMuted: '#5F5C53',
+  textSubtle: '#6B685F',
   accent: palette.sage,
-  accentStrong: '#7F8C77',
+  accentStrong: '#5E6B57',
   accentSecondary: palette.clay,
   border: 'rgba(51, 53, 47, 0.08)',
   divider: 'rgba(51, 53, 47, 0.06)',
   shadow: '#5A5245',
-  danger: '#B5735A',
+  danger: '#9C5A42',
   onAccent: palette.white,
+  trackOff: '#D9D3C7',
+};
+
+/** Warm, low-glare evening version of the same palette. */
+export const darkColors: ColorScheme = {
+  background: '#1C1D1A',
+  surface: '#252723',
+  surfaceRaised: '#30322D',
+  card: '#2A2C27',
+  text: '#EDE7DC',
+  textMuted: '#B3AFA4',
+  textSubtle: '#A29E93',
+  accent: '#7F8C77',
+  accentStrong: '#B8C3AF',
+  accentSecondary: palette.clay,
+  border: 'rgba(237, 231, 220, 0.10)',
+  divider: 'rgba(237, 231, 220, 0.08)',
+  shadow: '#000000',
+  danger: '#E0A08A',
+  onAccent: '#1C1D1A',
+  trackOff: '#4A4C46',
 };
 
 /**
@@ -132,5 +157,56 @@ export const shadows = {
 /** Minimum touch target in points (Apple HIG 44, Material 48). */
 export const HIT_TARGET = 48;
 
-export const theme = { colors: lightColors, fonts, spacing, radius, type, shadows };
-export type Theme = typeof theme;
+const base = { fonts, spacing, radius, type, shadows };
+
+export interface Theme {
+  scheme: ColorSchemeName;
+  colors: ColorScheme;
+  fonts: typeof fonts;
+  spacing: typeof spacing;
+  radius: typeof radius;
+  type: typeof type;
+  shadows: typeof shadows;
+}
+
+type AccentColors = Pick<ColorScheme, 'accent' | 'accentStrong' | 'accentSecondary'>;
+
+/**
+ * Accent sets (A Little Better+ personalisation). `accentStrong` is used for
+ * icons and small text, so it keeps 4.5:1 on the background in both schemes.
+ */
+export const ACCENTS: Record<AccentId, Record<ColorSchemeName, AccentColors> & { swatch: string }> = {
+  sage: {
+    swatch: palette.sage,
+    light: { accent: lightColors.accent, accentStrong: lightColors.accentStrong, accentSecondary: lightColors.accentSecondary },
+    dark: { accent: darkColors.accent, accentStrong: darkColors.accentStrong, accentSecondary: darkColors.accentSecondary },
+  },
+  clay: {
+    swatch: palette.clay,
+    light: { accent: '#D5A78F', accentStrong: '#8A5A45', accentSecondary: '#A8B3A0' },
+    dark: { accent: '#A87B66', accentStrong: '#E0B8A3', accentSecondary: '#A8B3A0' },
+  },
+  lavender: {
+    swatch: '#B9B0CC',
+    light: { accent: '#B9B0CC', accentStrong: '#5E5577', accentSecondary: '#D5A78F' },
+    dark: { accent: '#7E7596', accentStrong: '#C9C0DC', accentSecondary: '#D5A78F' },
+  },
+  sea: {
+    swatch: '#9FBDB8',
+    light: { accent: '#9FBDB8', accentStrong: '#3F5C58', accentSecondary: '#D5A78F' },
+    dark: { accent: '#5F837E', accentStrong: '#A9CBC5', accentSecondary: '#D5A78F' },
+  },
+};
+
+const BASE_COLORS: Record<ColorSchemeName, ColorScheme> = { light: lightColors, dark: darkColors };
+const themeCache = new Map<string, Theme>();
+
+export function getTheme(scheme: ColorSchemeName, accent: AccentId = 'sage'): Theme {
+  const key = `${scheme}:${accent}`;
+  let theme = themeCache.get(key);
+  if (!theme) {
+    theme = { scheme, colors: { ...BASE_COLORS[scheme], ...ACCENTS[accent][scheme] }, ...base };
+    themeCache.set(key, theme);
+  }
+  return theme;
+}

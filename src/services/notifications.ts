@@ -4,7 +4,7 @@ import { Platform } from 'react-native';
 import { localizeMessage } from '@/data/messages';
 import { STRINGS } from '@/i18n/strings';
 import { getDailyMessage } from '@/services/messageService';
-import type { Locale } from '@/types';
+import type { Locale, NotificationStyle } from '@/types';
 
 /**
  * Daily reminders.
@@ -99,11 +99,20 @@ export async function cancelDailyReminders(): Promise<void> {
   }
 }
 
-/** Identifies the time and language a pending notification was scheduled for. */
-const slotOf = (hour: number, minute: number, locale: Locale) => `${hour}:${minute}:${locale}`;
+export interface ReminderSettings {
+  hour: number;
+  minute: number;
+  locale: Locale;
+  /** 'discreet' never puts the message itself on the lock screen. */
+  style: NotificationStyle;
+}
+
+/** Identifies the time, language and style a pending notification was scheduled for. */
+const slotOf = ({ hour, minute, locale, style }: ReminderSettings) => `${hour}:${minute}:${locale}:${style}`;
 
 /** Replaces all pending reminders with a fresh 30-day window. */
-export async function scheduleDailyReminders(hour: number, minute: number, locale: Locale): Promise<boolean> {
+export async function scheduleDailyReminders(settings: ReminderSettings): Promise<boolean> {
+  const { hour, minute, locale, style } = settings;
   if (!notificationsSupported) return false;
   try {
     if (!(await hasPermission())) return false;
@@ -113,7 +122,8 @@ export async function scheduleDailyReminders(hour: number, minute: number, local
     const now = new Date();
     const startOffset =
       now.getHours() * 60 + now.getMinutes() < hour * 60 + minute ? 0 : 1;
-    const slot = slotOf(hour, minute, locale);
+    const slot = slotOf(settings);
+    const strings = STRINGS[locale].notification;
 
     // Independent native calls: issue them together instead of 30 round trips in a row.
     await Promise.all(
@@ -122,8 +132,8 @@ export async function scheduleDailyReminders(hour: number, minute: number, local
         const message = localizeMessage(getDailyMessage(date), locale);
         return Notifications.scheduleNotificationAsync({
           content: {
-            title: STRINGS[locale].notification.title,
-            body: message.text,
+            title: strings.title,
+            body: style === 'full' ? message.text : strings.discreetBody,
             data: { messageId: message.id, slot },
           },
           trigger: {
@@ -144,22 +154,22 @@ export async function scheduleDailyReminders(hour: number, minute: number, local
 /**
  * Launch-time top-up. Rebuilding the window costs 30+ native calls, so it is
  * skipped while at least TOP_UP_BELOW days are still pending for the current
- * time and language. Returns false if permission was revoked, so the caller can switch the
+ * time, language and style. Returns false if permission was revoked, so the caller can switch the
  * toggle off.
  */
 const TOP_UP_BELOW = 21;
 
-export async function ensureDailyReminders(hour: number, minute: number, locale: Locale): Promise<boolean> {
+export async function ensureDailyReminders(settings: ReminderSettings): Promise<boolean> {
   if (!notificationsSupported) return false;
   try {
     if (!(await hasPermission())) return false;
     const pending = await Notifications.getAllScheduledNotificationsAsync();
-    const slot = slotOf(hour, minute, locale);
+    const slot = slotOf(settings);
     const healthy =
       pending.length >= TOP_UP_BELOW && pending.every((n) => n.content.data?.slot === slot);
     if (healthy) return true;
   } catch {
     // Fall through and rebuild.
   }
-  return scheduleDailyReminders(hour, minute, locale);
+  return scheduleDailyReminders(settings);
 }

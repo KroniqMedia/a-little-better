@@ -42,9 +42,9 @@ export function SettingsRow(props: RowProps) {
           value={props.value}
           onValueChange={props.onValueChange}
           disabled={props.disabled}
-          trackColor={{ false: '#D9D3C7', true: colors.accent }}
+          trackColor={{ false: colors.trackOff, true: colors.accent }}
           thumbColor={colors.surfaceRaised}
-          ios_backgroundColor="#D9D3C7"
+          ios_backgroundColor={colors.trackOff}
           accessibilityLabel={label}
         />
       ) : null}

@@ -13,7 +13,7 @@ npm install
 npx expo start          # then press i (iOS) / a (Android), or scan with Expo Go
 ```
 
-Everything used here (notifications, sharing, view capture, haptics, Reanimated) is bundled in Expo Go, so you don't need a custom dev build for the MVP. Local notifications work in Expo Go. For store builds, use EAS: `npx eas-cli@latest build`.
+The app runs in Expo Go (notifications, sharing, view capture, haptics, Reanimated and file picking are all bundled there). The **home-screen widget** (`expo-widgets`) needs native code, so it only exists in a development or store build: `npx expo run:ios` / `npx expo run:android`, or `npx eas-cli@latest build --profile development`. In Expo Go the widget code is simply skipped. For store builds, use EAS: `npx eas-cli@latest build`.
 
 | Script | What it does |
 | --- | --- |
@@ -27,15 +27,18 @@ Everything used here (notifications, sharing, view capture, haptics, Reanimated)
 src/
   app/                    Expo Router routes (screens only)
     (tabs)/               Home · Explore · Saved
-    category/[id].tsx     A collection: one message at a time, never the full list
+    category/[id].tsx     A collection (optionally from a feeling and/or a need): one message at a time
+    moment.tsx            A need on its own, drawn from the whole library
+    welcome.tsx           One-screen welcome, shown once
     share/[id].tsx        Share-card composer (modal)
     settings/             Settings · Privacy · About
-  components/             ui/ (primitives), message/, category/, share/, settings/
+  components/             ui/ (primitives), moment/, need/, message/, category/, share/, settings/, reminder/
   constants/theme.ts      Design tokens: palette, type scale, spacing, radii, shadows
-  data/                   categories.ts + messages/ (624 original messages per language)
+  data/                   categories.ts, moods.ts, needs.ts + messages/ (624 original messages per language)
   hooks/                  useTheme, useDailyMessage, useMessageActions
   providers/              FavoritesProvider, PreferencesProvider (state + persistence)
-  services/               storage, messageService, notifications, share, haptics, sync
+  services/               storage, messageService, notForMe, helped, backup, purchases, widget, notifications, share, haptics, sync
+  widgets/                Home-screen widget (expo-widgets), one file per platform
   types/ utils/
 scripts/validate-messages.ts
 ```
@@ -45,9 +48,17 @@ Business logic lives in `services/` and `providers/`. Screens only compose compo
 ## Key behaviours
 
 - **Daily message.** All messages go into one fixed, seeded order, and the local calendar day picks the entry. Everyone sees the same message all day, it rolls over at local midnight, and nothing repeats for 624 days.
-- **Another message.** Each category deals from a shuffled deck, so you won't see a repeat until you've seen the whole collection, and a new pass never starts with the message that ended the last one.
-- **Favorites and preferences.** Stored in AsyncStorage behind the `FavoritesRepository` / `PreferencesRepository` interfaces in `services/storage.ts`.
-- **Notifications.** Exactly one per day, and only after you opt in. The app schedules a rolling 30 days of local notifications, each carrying that day's message. About 1.5 s after launch it checks the window, and it rebuilds it only when fewer than 21 days are left or the reminder time changed. If you revoke permission in system settings, the toggle switches itself off.
+- **Another message.** Each collection/need combination deals from a shuffled deck, so you won't see a repeat until you've seen every match, and a new pass never starts with the message that ended the last one. "Another message" is a secondary action; the main one is "That's enough for now".
+- **"This one isn't for me".** No reason asked. The message is hidden from collections (never from the shared daily message), the next one has a different tone, and tones marked more often come up a little later in each pass. Stored only on the device (`services/notForMe.ts`), undoable on the spot and from Settings › Your data.
+- **Favorites and preferences.** Stored in AsyncStorage behind the `FavoritesRepository` / `PreferencesRepository` interfaces in `services/storage.ts`. Up to 3 saved messages can be pinned to "To come back to".
+- **Backups.** Settings › Your data exports saved messages, "not for me" marks and settings to a JSON file (shared via the system sheet) and restores one with `File.pickFileAsync` from `expo-file-system`. Restoring merges; it never switches reminders on.
+- **Welcome and reminder offer.** First launch shows one welcome screen (no permission prompts). The reminder is offered on Home only after the person has opened a message for themselves, once.
+- **Notifications.** Exactly one per day, and only after you opt in. Discreet by default: the notification says only that today's message is waiting, so nothing personal shows on the lock screen; "Full message" puts the text in the notification. The app schedules a rolling 30 days of local notifications. About 1.5 s after launch it checks the window, and it rebuilds it only when fewer than 21 days are left or the time, language or style changed. If you revoke permission in system settings, the toggle switches itself off.
+- **A small step.** About 250 messages (practical tones, or tags like breathing, overwhelm or self-talk) offer one optional 20–60 second action underneath (`data/actions.ts`): breathing, five things you can see, leaving one thing for tomorrow, and so on. It opens only if tapped; the timer is a guide; nothing is recorded or left "to do".
+- **"Did this help?"** Optional, under each message. Answers stay on the phone (`services/helped.ts`), feed Settings › Your data › What has helped you (which need helps most), can be kept in "To come back to", travel in backups and can be forgotten at any time. "Not really" offers a different kind of message.
+- **Home-screen widget.** `src/widgets/DailyMessageWidget.{ios,android}.tsx`, configured in app.json (`expo-widgets`). The app pushes today's message in its language (`services/widget.ts`): iOS gets a two-week timeline and rolls over at midnight on its own; Android gets a snapshot refreshed whenever the app is opened (or open at midnight). Tapping the widget opens the app on iOS; `expo-widgets` doesn't offer that on Android yet.
+- **A Little Better+.** A prepared one-time purchase (`services/purchases.ts`, `app/settings/plus.tsx`): four extra share-card styles and an app accent colour. The store isn't connected, so it shows "Coming soon"; development builds can unlock it for testing. To go live, implement `PurchaseProvider` (RevenueCat or expo-iap) for product `alittlebetter.plus` and call `setPurchaseProvider` at startup. Offered only from Settings and locked share styles, never from a feeling or need. Accessibility, privacy, backups and all content stay free.
+- **Appearance and accessibility.** Light and dark schemes (`constants/theme.ts`), following the phone unless set in Settings › Appearance. Text tones meet 4.5:1 contrast. Body text scales up to 2× with the system text size (large serif styles up to 1.4×). Animations follow the system "reduce motion" setting, and new messages are announced to screen readers.
 - **Share cards.** A 9:16 card in 4 brand templates, captured at 1080×1920 with `react-native-view-shot` and opened in the native share sheet. If image sharing isn't possible, it falls back to plain-text sharing.
 
 ## Performance notes
@@ -79,7 +90,17 @@ Append to the relevant English file in `src/data/messages/`, and add its Spanish
 
 ## "How do you feel today?"
 
-Home asks how you feel with six drawn faces (`components/mood/MoodFace.tsx`, defined in `data/moods.ts`). Each face opens the collection that answers it, with a reply written for that feeling. The choice is remembered until local midnight.
+Home leads with six drawn faces (`components/mood/MoodFace.tsx`, defined in `data/moods.ts`) under today's message ("I need something else today" scrolls to them). Each face opens the collection that answers it, with a reply written for that feeling. The choice is remembered until local midnight; tap another face to change it.
+
+Inside the collection, three chips narrow the next message by what would help (`data/needs.ts`, mapped to tones the library already has); tapping the active chip widens it again:
+
+| Need | Tones |
+| --- | --- |
+| Comfort | reassuring |
+| Another view | reflective, uplifting |
+| A small step | grounding, gentle-challenge |
+
+Below the faces, the same three needs are a shortcut for when naming a feeling isn't what someone wants: on their own they draw from the whole library, or from today's feeling's collection if one was picked.
 
 | Face | Opens | Collection theme |
 | --- | --- | --- |
@@ -92,6 +113,11 @@ Home asks how you feel with six drawn faces (`components/mood/MoodFace.tsx`, def
 
 Explore still lists all six collections by name.
 
+## Docs
+
+- [docs/content-audit.md](docs/content-audit.md): the November 2026 review of all 624 messages in both languages, and what was changed.
+- [docs/user-testing.md](docs/user-testing.md): a two-week test plan to learn who the app helps and when.
+
 ## Known Expo Go limitations
 
 - On Android, Expo Go (SDK 58) rejects custom notification-channel creation with a native error. The app catches this and schedules on the default channel. In a development or store build, the `daily-reminder` channel from app.json is used.
@@ -99,4 +125,4 @@ Explore still lists all six collections by name.
 
 ## Future: accounts and sync
 
-`services/sync.ts` lazily creates a Supabase client only when `EXPO_PUBLIC_SUPABASE_URL` and `EXPO_PUBLIC_SUPABASE_ANON_KEY` are set, and documents a suggested `favorites` table. To add sync, implement the repository interfaces against Supabase and pass them to the providers in `src/app/_layout.tsx`. Dark mode works the same way: add a second `ColorScheme` in `constants/theme.ts` and return it from `useTheme()`.
+`services/sync.ts` lazily creates a Supabase client only when `EXPO_PUBLIC_SUPABASE_URL` and `EXPO_PUBLIC_SUPABASE_ANON_KEY` are set, and documents a suggested `favorites` table. To add sync, implement the repository interfaces against Supabase and pass them to the providers in `src/app/_layout.tsx`.
