@@ -82,7 +82,7 @@ const seeds: MessageSeed[] = [
   ["Doubt can come along. Just don't let it hold the map.", null, 'grounding', ['doubt', 'direction']],
   ["Practice doesn't make perfect. It makes progress, and that's enough.", null, 'reassuring', ['practice', 'progress']],
   ['Raise your standards for how you treat yourself, not for how perfect you must be.', null, 'gentle-challenge', ['standards', 'self-compassion']],
-  ["Stretch a little further than yesterday. That's all growth asks.", null, 'gentle-challenge', ['growth', 'effort']],
+  ["Stretch a little, if you can. That's all growth asks.", null, 'gentle-challenge', ['growth', 'effort']],
   ["Your courage doesn't have to look like anyone else's.", null, 'reassuring', ['courage', 'individuality']],
   ['When the path is unclear, take the step that feels most honest.', null, 'grounding', ['honesty', 'decisions']],
   ['Learning from a failure is a quiet form of winning.', null, 'reflective', ['failure', 'learning']],

@@ -28,7 +28,7 @@ const seeds: MessageSeed[] = [
   ["It makes sense that you feel this way. You're not overreacting.", null, 'reassuring', ['validation', 'feelings']],
   ["Some days the win is simply that you didn't give up.", null, 'reassuring', ['bad-days', 'perseverance']],
   ['Let today be soft. Lower the bar, and be kind to yourself when you meet it.', null, 'grounding', ['expectations', 'gentleness']],
-  ['Name five things you can see right now. You are here, in this moment, and you are safe enough to rest.', null, 'grounding', ['grounding', 'anxiety']],
+  ["Name five things you can see right now. You are here, in this moment, and you can take it one breath at a time.", null, 'grounding', ['grounding', 'anxiety']],
   ["You don't have to carry it all alone. Even heavy things get lighter when shared.", null, 'reassuring', ['support', 'loneliness']],
   ['A step outside, some fresh air, ten slow breaths. It won\'t fix everything, but it will help a little.', null, 'grounding', ['nature', 'calm']],
   ["Stress is a sign of how much you're holding, not how badly you're doing.", null, 'reflective', ['stress', 'validation']],

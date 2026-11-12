@@ -28,7 +28,7 @@ export const comfortEs: readonly Translation[] = [
   ['Tiene sentido que te sientas así. No es una exageración.', null],
   ['Algunos días, ganar es simplemente no haberte rendido.', null],
   ['Que hoy sea un día suave. Baja el listón y trátate con cariño cuando lo alcances.', null],
-  ['Nombra cinco cosas que puedas ver ahora mismo. Estás aquí, en este momento, y puedes descansar con calma.', null],
+  ["Nombra cinco cosas que puedas ver ahora mismo. Estás aquí, en este momento, y puedes ir respiración a respiración.", null],
   ['No tienes que cargar con todo a solas. Hasta lo pesado se aligera cuando se comparte.', null],
   ['Salir un momento, un poco de aire fresco, diez respiraciones lentas. No lo arreglará todo, pero ayudará un poco.', null],
   ['El estrés muestra cuánto estás sosteniendo, no lo mal que lo estás haciendo.', null],

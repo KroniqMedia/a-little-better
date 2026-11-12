@@ -2,9 +2,9 @@ import { buildMessages, type MessageSeed } from './build';
 
 /** Self-worth & Confidence. Append only: IDs are positional. */
 const seeds: MessageSeed[] = [
-  ["You're allowed to be proud of yourself, even when you still have a long way to go.", "Remember to recognize how far you've already come.", 'reassuring', ['pride', 'progress']],
+  ["You're allowed to be proud of yourself, even when you still have a long way to go.", "Remember to recognise how far you've already come.", 'reassuring', ['pride', 'progress']],
   ["You don't need to be the best in the room to deserve to be there.", 'You were invited for a reason, even if nobody said it out loud.', 'reassuring', ['belonging', 'work']],
-  ["Stop measuring your progress against someone else's timeline.", 'Their story has different chapters. Yours is still being written.', 'gentle-challenge', ['comparison', 'timing']],
+  ["Try not to measure your progress against someone else's timeline.", 'Their story has different chapters. Yours is still being written.', 'gentle-challenge', ['comparison', 'timing']],
   ['The way you talk to yourself matters. Try speaking like someone who is on your side.', null, 'gentle-challenge', ['self-talk', 'kindness']],
   ["You don't have to earn rest, kindness or a second chance. They were never prizes.", null, 'reassuring', ['worth', 'rest']],
   ['Quiet people change rooms too.', 'Not everything valuable is loud.', 'uplifting', ['introversion', 'presence']],
@@ -13,7 +13,7 @@ const seeds: MessageSeed[] = [
   ['Somebody out there is glad you exist, and they probably think about it more than you realise.', null, 'reassuring', ['connection', 'worth']],
   ["Other people's opinions are information, not a verdict.", 'Take what helps. Leave the rest at the door.', 'grounding', ['criticism', 'boundaries']],
   ["You're not behind. You're on a path nobody else has walked.", null, 'reassuring', ['comparison', 'timing']],
-  ["What you call 'just being yourself' is something nobody else can do.", null, 'uplifting', ['uniqueness', 'identity']],
+  ["What you call “just being yourself” is something nobody else can do.", null, 'uplifting', ['uniqueness', 'identity']],
   ['Give yourself the same patience you so easily give to others.', 'You would never speak to a friend the way you speak to yourself on a bad day.', 'gentle-challenge', ['self-compassion', 'patience']],
   ['You can be a work in progress and a masterpiece at the same time.', null, 'uplifting', ['growth', 'acceptance']],
   ['Saying no to something is also saying yes to yourself.', null, 'grounding', ['boundaries', 'choices']],

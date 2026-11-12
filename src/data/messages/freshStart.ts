@@ -2,7 +2,7 @@ import { buildMessages, type MessageSeed } from './build';
 
 /** Letting Go & Moving Forward. Append only: IDs are positional. */
 const seeds: MessageSeed[] = [
-  ["You can't start the next chapter if you keep rereading the last one.", null, 'gentle-challenge', ['moving-on', 'past']],
+  ["It's hard to start the next chapter while you keep rereading the last one. Turn the page when you're ready.", null, 'gentle-challenge', ['moving-on', 'past']],
   ['Letting go isn\'t forgetting. It\'s choosing not to carry it everywhere.', null, 'reflective', ['letting-go', 'memory']],
   ["You're allowed to change your mind, your direction and your plans.", null, 'reassuring', ['change', 'choices']],
   ['Forgive yourself for not knowing what you know now.', null, 'reassuring', ['forgiveness', 'hindsight']],
@@ -74,12 +74,12 @@ const seeds: MessageSeed[] = [
   ["Forgiving yourself isn't excusing what happened. It's choosing to keep growing.", null, 'reflective', ['forgiveness', 'growth']],
   ['Move a chair, open a window, change the sheets. Fresh starts can be physical too.', null, 'grounding', ['environment', 'reset']],
   ["You don't have to keep proving you've changed. Just keep living it.", null, 'grounding', ['change', 'proof']],
-  ['Leaving was hard. Staying would have been harder.', null, 'reassuring', ['leaving', 'choices']],
+  ["Leaving was hard. Staying might have been harder.", null, 'reassuring', ['leaving', 'choices']],
   ['Not getting what you wanted can be the beginning of getting what you need.', null, 'reflective', ['rejection', 'needs']],
   ['The end of one plan is often the first draft of a better one.', null, 'uplifting', ['plans', 'beginnings']],
   ['You can put a memory down gently instead of throwing it away.', null, 'reflective', ['memory', 'gentleness']],
   ["A fresh start doesn't need everyone's approval. It needs yours.", null, 'gentle-challenge', ['approval', 'beginnings']],
-  ["Stop rehearsing old arguments. You've already said enough.", null, 'gentle-challenge', ['rumination', 'peace']],
+  ["You can stop rehearsing old arguments. You've already said enough.", null, 'gentle-challenge', ['rumination', 'peace']],
   ['Some things are finished even if they never properly ended.', null, 'reflective', ['closure', 'endings']],
   ['Your life is allowed to look different from the one you planned years ago.', null, 'reassuring', ['plans', 'age']],
   ["Moving forward doesn't mean the past stops mattering. It just stops leading.", null, 'reflective', ['past', 'moving-on']],
@@ -106,7 +106,7 @@ const seeds: MessageSeed[] = [
   ['Let people be wrong about who you are now.', null, 'grounding', ['identity', 'approval']],
   ['Even small changes can become a turning point if you keep choosing them.', null, 'grounding', ['change', 'persistence']],
   ['Today can be the first page of something, even if no one else notices.', null, 'uplifting', ['today', 'beginnings']],
-  ['You made it through the ending. The beginning will be gentler.', null, 'reassuring', ['endings', 'beginnings']],
+  ["You made it through the ending. The beginning can be gentler.", null, 'reassuring', ['endings', 'beginnings']],
 ];
 
 export const freshStartMessages = buildMessages('fresh-start', seeds);

@@ -4,7 +4,7 @@ import type { Translation } from '../build';
 export const confidenceEs: readonly Translation[] = [
   ['Tienes derecho a sentir orgullo de ti, aunque todavía te quede mucho camino.', 'Acuérdate de reconocer todo lo que ya has avanzado.'],
   ['No hace falta ser quien más brilla en la sala para merecer estar ahí.', 'Estás ahí por algo, aunque nadie lo haya dicho en voz alta.'],
-  ['Deja de medir tu progreso con el calendario de otra persona.', 'Su historia tiene otros capítulos. La tuya todavía se está escribiendo.'],
+  ["Intenta no medir tu progreso con el calendario de otra persona.", 'Su historia tiene otros capítulos. La tuya todavía se está escribiendo.'],
   ['Importa cómo te hablas. Prueba a hablarte como alguien que está de tu parte.', null],
   ['No tienes que ganarte el descanso, la amabilidad ni una segunda oportunidad. Nunca fueron premios.', null],
   ['La gente callada también cambia el ambiente de una sala.', 'No todo lo valioso hace ruido.'],
@@ -64,7 +64,7 @@ export const confidenceEs: readonly Translation[] = [
   ['Has aprendido tanto que ya ni recuerdas que hubo un tiempo en que no lo sabías.', null],
   ['Tus ideas merecen ser escuchadas al menos una vez antes de que decidas que no son lo bastante buenas.', null],
   ['Todo el mundo improvisa a veces. Estás en buena compañía.', null],
-  ['No eres un mal día de pelo, una frase torpe ni una respuesta equivocada.', null],
+  ["No eres un día de pelo rebelde, una frase torpe ni una respuesta equivocada.", null],
   ['Trata tus sueños con el mismo respeto con el que tratarías los de alguien que quieres.', null],
   ['Puedes caerte bien antes de haberlo arreglado todo.', null],
   ['Algunas de tus mejores cualidades te salen tan naturales que ni las notas.', null],

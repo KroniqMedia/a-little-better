@@ -2,7 +2,7 @@ import type { Translation } from '../build';
 
 /** Soltar y seguir adelante. Same order as ../freshStart.ts: entry N is seed N. */
 export const freshStartEs: readonly Translation[] = [
-  ['No puedes empezar el siguiente capítulo si sigues releyendo el anterior.', null],
+  ["Cuesta empezar el siguiente capítulo si sigues releyendo el anterior. Pasa la página cuando puedas.", null],
   ['Soltar no es olvidar. Es elegir no llevarlo contigo a todas partes.', null],
   ['Tienes derecho a cambiar de opinión, de rumbo y de planes.', null],
   ['Perdónate por no saber entonces lo que sabes ahora.', null],
@@ -74,12 +74,12 @@ export const freshStartEs: readonly Translation[] = [
   ['Perdonarte no es justificar lo que pasó. Es elegir seguir creciendo.', null],
   ['Mueve una silla, abre una ventana, cambia las sábanas. Los nuevos comienzos también pueden ser físicos.', null],
   ['No tienes que demostrar sin parar que has cambiado. Basta con seguir viviéndolo.', null],
-  ['Irte fue difícil. Quedarte habría sido más difícil.', null],
+  ["Irte fue difícil. Quedarte quizá habría sido más difícil.", null],
   ['No conseguir lo que querías puede ser el principio de conseguir lo que necesitas.', null],
   ['El final de un plan suele ser el primer borrador de uno mejor.', null],
   ['Puedes dejar un recuerdo con cuidado en lugar de tirarlo.', null],
   ['Un nuevo comienzo no necesita la aprobación de todo el mundo. Necesita la tuya.', null],
-  ['Deja de ensayar viejas discusiones. Ya has dicho suficiente.', null],
+  ["Puedes dejar de ensayar viejas discusiones. Ya has dicho suficiente.", null],
   ['Algunas cosas están terminadas aunque nunca tuvieran un final como es debido.', null],
   ['Tu vida puede ser distinta a la que planeaste hace años.', null],
   ['Seguir adelante no significa que el pasado deje de importar. Solo deja de llevar las riendas.', null],
@@ -106,5 +106,5 @@ export const freshStartEs: readonly Translation[] = [
   ['Deja que la gente se equivoque sobre quién eres ahora.', null],
   ['Hasta los cambios pequeños pueden convertirse en un punto de inflexión si sigues eligiéndolos.', null],
   ['Hoy puede ser la primera página de algo, aunque nadie más se dé cuenta.', null],
-  ['Has superado el final. El comienzo será más amable.', null],
+  ["Has superado el final. El comienzo puede ser más amable.", null],
 ];
